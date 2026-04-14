@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>To-Do App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>My Tasks</h1>
+    <div class="input-box">
+        <input type="text" id="taskInput" placeholder="Add a task...">
+        <button class="add-btn" onclick="addTask()">+</button>
+    </div>
+    <ul id="taskList">
+        <p id="emptyMsg">No tasks yet</p>
+    </ul>
+</div>
+<script>
+let tasks = [];
+// Load saved tasks
+window.onload = function () {
+    let savedTasks = localStorage.getItem("tasks");
+    if (savedTasks) {
+        tasks = JSON.parse(savedTasks);
+        tasks.forEach(task => createTask(task));
+    }
+};
+// Add task
+function addTask() {
+    let input = document.getElementById("taskInput");
+    let task = input.value;
+    if (task === "") {
+        alert("Enter a task!");
+        return;
+    }
+    tasks.push(task);
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    createTask(task);
+    input.value = "";
+    let emptyMsg = document.getElementById("emptyMsg");
+    if (emptyMsg) {
+        emptyMsg.style.display = "none";
+    }
+}
+// Create task
+function createTask(task) {
+    let li = document.createElement("li");
+    let span = document.createElement("span");
+    span.innerText = task;
+    let editBtn = document.createElement("button");
+editBtn.innerText = "✏️";
+editBtn.classList.add("edit-btn");
+editBtn.onclick = function () {
+    let newTask = prompt("Edit your task:", span.innerText);
+    if (newTask !== null && newTask !== "") {
+        span.innerText = newTask;
+        let index = tasks.indexOf(task);
+        if (index !== -1) {
+            tasks[index] = newTask;
+        }
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        task = newTask;
+    }
+};
+    let delBtn = document.createElement("button");
+    delBtn.innerText = "🗑";
+    delBtn.classList.add("delete-btn");
+    delBtn.onclick = function () {
+        li.remove();
+        let index = tasks.indexOf(task);
+        if (index !== -1) {
+            tasks.splice(index, 1);
+        }
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        let taskList = document.getElementById("taskList");
+        if (taskList.querySelectorAll("li").length === 0) {
+            document.getElementById("emptyMsg").style.display = "block";
+        }
+    };
+    li.appendChild(span);
+    li.appendChild(editBtn);
+    li.appendChild(delBtn);
+    document.getElementById("taskList").appendChild(li);
+}
+// Enter key support
+document.getElementById("taskInput").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        addTask();
+    }
+});
+</script>
+</body>
+</html>
